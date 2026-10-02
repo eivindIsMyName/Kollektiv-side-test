@@ -1,0 +1,76 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+.tittel-farge {
+  color: #00B7FF;
+}
+
+.undertittel-farge {
+  color: #FF69B4;
+}
+
+.lighter-background{
+  background-color: #5b5c5d;
+}
+
+
+
+
+/* Base container layout */
+.custom-checkbox {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 10px;
+  font-family: sans-serif;
+  outline: none;
+}
+
+/* The visual box of the checkbox */
+.custom-checkbox .checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* Focus state for keyboard accessibility */
+.custom-checkbox:focus-visible .checkmark {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+  border-color: #007bff;
+}
+
+/* Hover state styling */
+.custom-checkbox:hover .checkmark {
+  border-color: #007bff;
+}
+
+/* Creating the checkmark inside via pseudo-element */
+.custom-checkbox .checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* CSS rules when the state changes to checked */
+.custom-checkbox[aria-checked="true"] .checkmark {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.custom-checkbox[aria-checked="true"] .checkmark::after {
+  display: block;
+}

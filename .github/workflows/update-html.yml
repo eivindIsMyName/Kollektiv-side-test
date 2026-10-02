@@ -1,0 +1,72 @@
+name: Shift Text Content (IDs 1-8)
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Every Monday at 2:00 AM UTC
+  workflow_dispatch:   # Allows manual testing from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  rotate-text:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # FIX: Install BeautifulSoup4 so Python can use it
+      - name: Install Dependencies
+        run: pip install beautifulsoup4
+
+      - name: Rotate Content Across IDs 1 to 8
+        shell: python
+        run: |
+          import sys
+          from bs4 import BeautifulSoup
+
+          file_path = "index.html"
+
+          try:
+              # 1. Load the HTML file
+              with open(file_path, "r", encoding="utf-8") as f:
+                  soup = BeautifulSoup(f, "html.parser")
+
+              # 2. Gather the content currently sitting inside IDs 1 through 8
+              ids = ["1", "2", "3", "4", "5", "6", "7", "8"]
+              elements = [soup.find(id=target_id) for target_id in ids]
+
+              # 3. Check if any IDs are missing
+              missing = [target_id for target_id in ids if soup.find(id=target_id) is None]
+              if missing:
+                  print(f"❌ ERROR: Could not find these IDs in your HTML file: {missing}", file=sys.stderr)
+                  sys.exit(1)
+
+              # Extract the inner contents (text/html tags inside them)
+              current_contents = [el.decode_contents() for el in elements]
+
+              # Shift logic: Take the bottom item (index 7) and put it at the top (index 0)
+              rotated_contents = [current_contents[-1]] + current_contents[:-1]
+
+              # 4. Inject the shifted contents back into the matching ID blocks
+              for i, el in enumerate(elements):
+                  el.clear()  # Erase old text
+                  new_snippet = BeautifulSoup(rotated_contents[i], "html.parser")
+                  el.append(new_snippet)
+
+              # 5. Save changes back to index.html
+              with open(file_path, "w", encoding="utf-8") as f:
+                  f.write(str(soup))
+              print("✅ SUCCESS: Successfully shifted text content down across IDs 1-8.")
+
+          except Exception as e:
+              print(f"❌ CRITICAL ERROR: {str(e)}", file=sys.stderr)
+              sys.exit(1)
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@://github.com"
+          git add index.html
+          git commit -m "Rotated content across IDs 1-8 [skip ci]" || echo "No changes to commit"
+          git push
